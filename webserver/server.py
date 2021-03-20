@@ -163,16 +163,48 @@ def index():
 def another():
   return render_template("another.html")
 
-@app.route('/food')
+# Example of adding new data to the database
+@app.route('/add', methods=['POST'])
+def add():
+  name = request.form['name']
+  g.conn.execute('INSERT INTO test(name) VALUES (%s)', name)
+  return redirect('/')
+
+@app.route('/food', methods=['POST'])
 def food():
-  cursor = g.conn.execute("SELECT cuisinename FROM cuisine") ## TODO: Add new query here!
-  cuisines = []
+
+  ## TODO: Add new block of code here with appropriate lists etc
+  CUISINE = request.form['cuisine']
+  TAG = request.form['dietTag']
+  RESTAURANT = request.form['rname']
+  DISH = request.form['dname']
+
+  cursor = g.conn.execute("""SELECT food.foodname as fname, food.description as fdesc, restaurant.name as rname, menuitem.price as price
+  FROM restaurant
+  natural join menuitem
+  natural join food
+  join cuisine on food.cuisineid = cuisine.cuisineid
+  WHERE cuisinename = \'"""+CUISINE+"""\';""") ## TODO: Add new query here!
+  # cursor = g.conn.execute()
+
+  foods = []
   for result in cursor:
-    cuisines.append((result['cuisineid'], result['cuisinename']))  # can also be accessed using result[0]
+    foods.append([result['fname'], result['fdesc'],result['price'],result['rname']])  
   cursor.close()
 
-  context = dict(cuisine_data = cuisines)
-  return render_template("food.html")
+  context = dict(food_data = foods)
+  return render_template("food.html", **context)
+
+
+@app.route('/restaurant', methods=['POST'])
+def restaurant():
+  RESTAURANT = request.form['cuisine']
+
+  ## TODO: Add new block of code here with appropriate lists etc
+  print("HELLO")
+  print("CUISINE : ", CUISINE)
+  return render_template("restaurant.html")
+
 
 @app.route('/customer')
 def customer():
@@ -206,14 +238,6 @@ def customer():
   # for example, the below file reads template/index.html
   #
   return render_template("customer.html", **context)
-
-
-# Example of adding new data to the database
-@app.route('/add', methods=['POST'])
-def add():
-  name = request.form['name']
-  g.conn.execute('INSERT INTO test(name) VALUES (%s)', name)
-  return redirect('/')
 
 
 @app.route('/login')

@@ -17,17 +17,17 @@
     {% endfor %}
   </div> -->
   <div>
-    <form action="/food">
-      <label for="cars">Choose a dietary option:</label>
-      <select name="dietTags" id="dietTags">
+    <form method="POST" action="/food">
+      <label for="dietTag">Choose a dietary option:</label>
+      <select name="dietTag" id="dietTag">
         <option value=""></option>
         {% for n in tag_data %}
         <option>{{n}}</option>
         {% endfor %}
       </select>
 
-      <label for="cars">Choose a cuisine:</label>
-      <select name="cuisines" id="cuisines">
+      <label cuisine="cars">Choose a cuisine:</label>
+      <select name="cuisine" id="cuisine">
         <option value=""></option>
         {% for n in cuisine_data %}
         <option>{{n}}</option>
