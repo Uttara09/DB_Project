@@ -9,16 +9,12 @@
 
 <body>
   <h1>Some famous Computer Scientists</h1>
+  <div>{{data}}</div>
 
   <div>
-    <label for="cuisines">Cuisines</label>
-    <select name="cuisines" id="cuisines">
-      <option value=""></option>
-      {% for n in data %}
-      <option>{{n}}</option>
-      {% endfor %}
-        
-    </select>
+    {% for n in data %}
+    <div>{{n}}</div>
+    {% endfor %}
   </div>
 
 <p><a href="another">Go to the other page</a></p>

@@ -163,6 +163,16 @@ def index():
 def another():
   return render_template("another.html")
 
+@app.route('/food')
+def food():
+  cursor = g.conn.execute("SELECT cuisinename FROM cuisine") ## TODO: Add new query here!
+  cuisines = []
+  for result in cursor:
+    cuisines.append((result['cuisineid'], result['cuisinename']))  # can also be accessed using result[0]
+  cursor.close()
+
+  context = dict(cuisine_data = cuisines)
+  return render_template("food.html")
 
 @app.route('/customer')
 def customer():
