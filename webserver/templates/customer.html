@@ -8,7 +8,7 @@
 
 
 <body>
-  <h1>Please query and select the right category</h1>
+  <h1>Please query for dishes here</h1>
   <!-- <div>{{data}}</div> -->
 
   <!-- <div>
@@ -17,34 +17,29 @@
     {% endfor %}
   </div> -->
   <div>
-    <label for="cars">Choose a cuisine:</label>
-    <select name="cuisines" id="cuisines">
-      <option value=""></option>
-      {% for n in cuisine_data %}
-      <option>{{n}}</option>
-      {% endfor %}
-        
-    </select>
-  </div>
+    <form action="/action_page.php">
+      <label for="cars">Choose a dietary option:</label>
+      <select name="dietTags" id="dietTags">
+        <option value=""></option>
+        {% for n in tag_data %}
+        <option>{{n}}</option>
+        {% endfor %}
+      </select>
 
-  <div>
-    <label for="cars">Choose a dietary option:</label>
-    <select name="dietTags" id="dietTags">
-      <option value=""></option>
-      {% for n in tag_data %}
-      <option>{{n}}</option>
-      {% endfor %}
-    </select>
-  </div>
+      <label for="cars">Choose a cuisine:</label>
+      <select name="cuisines" id="cuisines">
+        <option value=""></option>
+        {% for n in cuisine_data %}
+        <option>{{n}}</option>
+        {% endfor %} 
+      </select>
 
-  <div>
-    <label for="cars">Choose a Restaurant:</label>
-    <select name="dietTags" id="dietTags">
-      <option value=""></option>
-      {% for n in restaurant_data %}
-      <option>{{n}}</option>
-      {% endfor %}
-    </select>
+      <label for="rname">Restaurant Name</label>
+      <input type="text" id="rname" name="rname"><br><br>
+      <label for="lname">Dish Name</label>
+      <input type="text" id="dname" name="dname"><br><br>
+      <input type="submit" value="Submit">
+    </form>
   </div>
 
   <!-- <div>
