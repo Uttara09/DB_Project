@@ -167,6 +167,22 @@ def another():
 @app.route('/owner/update', methods=['POST'])
 def owner_update():
   print("Inside owner update")
+
+  return owner()
+
+@app.route('/owner/delete', methods=['POST'])
+def owner_delete():
+  print("Inside owner delete")
+  fname = request.form['fname']
+  rname = request.form['rname']
+  fprice = request.form['fprice']
+  print('fname : ', fname)
+
+  return owner()
+
+@app.route('/owner/add', methods=['POST'])
+def owner_add():
+  print("Inside owner add")
   return owner()
 
 @app.route('/owner', methods=['POST'])
@@ -177,7 +193,6 @@ def owner():
     si_owner_name = request.form['si_owner_name']
 
   # get all food at this restaurant
-
   cursor = g.conn.execute("""SELECT restaurant.name as rname, food.foodname as fname, menuitem.price as price
   FROM restaurant
   natural join menuitem
@@ -259,13 +274,38 @@ def restaurant():
 
   context = dict(restaurant_items_data = restaurant_items, restaurant_reviews_data = restaurant_reviews)
   return render_template("restaurant.html", **context)
+si_customer_name = ""
+su_customer_name = ""
+su_billing_info = ""
+su_customer_address = ""
+su_customer_ph = ""
 
 @app.route('/customer', methods=['POST'])
 def customer():
-  global si_customer_name
-  si_customer_name = request.form['si_customer_name']
   
+  global si_customer_name
+  global su_customer_name
+  global su_billing_info
+  global su_customer_address
+  global su_customer_ph
 
+  if 'si_customer_name' in request.form:
+    print("Trying to Sign in")
+    si_customer_name = request.form['si_customer_name']
+    
+
+  if 'su_customer_name' in request.form:
+    print("Trying to Sign up")
+    su_customer_name = request.form['su_customer_name']
+    su_billing_info = request.form['su_billing_info']
+    su_customer_address = request.form['su_customer_address']
+    su_customer_ph = request.form['su_customer_ph']
+
+    ### Add this customer to customer table
+    
+    ### render the login page again
+    return render_template("login.html")
+    ### then the customer logs in normally
 
   cursor = g.conn.execute("SELECT cuisinename FROM cuisine")
   cuisinenames = []
