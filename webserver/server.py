@@ -164,9 +164,44 @@ def teardown_request(exception):
 def another():
   return render_template("another.html")
 
+def getFoodIdByName(foodName):
+  QUERY = "SELECT foodid as id from food where foodname = 'foodAnchor'"
+  QUERY = QUERY.replace('foodAnchor', foodName)
+  print(QUERY)
+  cursor = g.conn.execute(QUERY)
+  ans = ""
+  for result in cursor:
+    ans = result['id']  
+  cursor.close()
+  print("food",ans)
+  return ans
+
+def getRestaurantIdByName(restName):
+  QUERY = "SELECT restaurantid as id from restaurant where name = 'restAnchor'"
+  QUERY = QUERY.replace('restAnchor', restName)
+  print(QUERY)
+  cursor = g.conn.execute(QUERY)
+  ans = ""
+  for result in cursor:
+    ans = result['id']  
+  cursor.close()
+  print("restaurant",ans)
+  return ans
+
+
 @app.route('/owner/update', methods=['POST'])
 def owner_update():
-  print("Inside owner update")
+  restId = getRestaurantIdByName(request.form['rname'])
+  foodId = getFoodIdByName(request.form['fname'])
+  price = request.form['fprice']
+  print(restId, foodId, price)
+  QUERY = """
+  UPDATE menuitem
+  SET price = 9
+  WHERE foodid=foodIdAnchor and restaurantId=restaurantIdAnchor;
+  """
+  QUERY = QUERY.replace('foodIdAnchor', str(foodId)).replace('restaurantIdAnchor',str(restId)).replace('priceAnchor', str(price)).replace('\n','')
+  g.conn.execute(QUERY)
   return owner()
 
 @app.route('/owner', methods=['POST'])
