@@ -164,13 +164,18 @@ def teardown_request(exception):
 def another():
   return render_template("another.html")
 
+@app.route('/owner/update', methods=['POST'])
+def owner_update():
+  print("Inside owner update")
+  return owner()
+
 @app.route('/owner', methods=['POST'])
 def owner():
-  print("HIIIII")
+
   global si_owner_name
   if 'si_owner_name' in request.form:
     si_owner_name = request.form['si_owner_name']
-  print('si_owner_name : ', si_owner_name)
+
   # get all food at this restaurant
 
   cursor = g.conn.execute("""SELECT restaurant.name as rname, food.foodname as fname, menuitem.price as price
@@ -182,10 +187,8 @@ def owner():
 
   food = []
   for result in cursor:
-    print('yo')
     food.append([result['fname'],result['price'],result['rname']])  
   cursor.close()
-  print('YOOOO')
   context = dict(food_data = food)
   return render_template("owner.html", **context)
 

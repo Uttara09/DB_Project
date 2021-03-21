@@ -48,13 +48,20 @@
     	<form action="/owner" method="POST">
 		  <label for="fname">Food name</label><br>
 		  <input type="text" id="fname" name="fname"><br>
+
 		  <label for="rname">Restaurant name</label><br>
 		  <input type="text" id="rname" name="rname"><br>
+
 		  <label for="fprice">Price</label><br>
 		  <input type="text" id="fprice" name="fprice"><br><br>
-		  <input type="submit" value="Update Dish">
+
+		<!--   <input type="submit" value="Update Dish">
 		  <input type="submit" value="Delete Dish">
-		  <input type="submit" value="Add Dish">
+		  <input type="submit" value="Add Dish"> -->
+
+		  <button type="submit" formaction="/owner/update">Update Dish</button>
+		  <button type="submit" formaction="/owner">Delete Dish</button>
+		  <button type="submit" formaction="/owner">Add Dish</button>
 		</form> 
     </div>
     
