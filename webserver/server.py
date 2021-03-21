@@ -164,6 +164,30 @@ def teardown_request(exception):
 def another():
   return render_template("another.html")
 
+@app.route('/owner', methods=['POST'])
+def owner():
+  print("HIIIII")
+  global si_owner_name
+  si_owner_name = request.form['si_owner_name']
+  print('si_owner_name : ', si_owner_name)
+  # get all food at this restaurant
+
+  cursor = g.conn.execute("""SELECT restaurant.name as rname, food.foodname as fname, menuitem.price as price
+  FROM restaurant
+  natural join menuitem
+  natural join food
+  JOIN users on restaurant.userid = users.userid
+  WHERE users.username = \'"""+si_owner_name+"""\';""")
+
+  food = []
+  for result in cursor:
+    print('yo')
+    food.append([result['fname'],result['price'],result['rname']])  
+  cursor.close()
+  print('YOOOO')
+  context = dict(food_data = food)
+  return render_template("owner.html", **context)
+
 @app.route('/order')
 def order():
   print(request.form)
@@ -181,7 +205,6 @@ def add():
 @app.route('/food', methods=['POST'])
 def food():
 
-  ## TODO: Add new block of code here with appropriate lists etc
   CUISINE = request.form['cuisine']
   TAG = request.form['dietTag']
   RESTAURANT = request.form['rname']
@@ -192,8 +215,7 @@ def food():
   natural join menuitem
   natural join food
   join cuisine on food.cuisineid = cuisine.cuisineid
-  WHERE cuisinename = \'"""+CUISINE+"""\';""") ## TODO: Add new query here!
-  # cursor = g.conn.execute()
+  WHERE cuisinename = \'"""+CUISINE+"""\';""") 
 
   foods = []
   for result in cursor:
@@ -234,13 +256,13 @@ def restaurant():
   context = dict(restaurant_items_data = restaurant_items, restaurant_reviews_data = restaurant_reviews)
   return render_template("restaurant.html", **context)
 
-
-@app.route('/customer')
+@app.route('/customer', methods=['POST'])
 def customer():
-  print(request.args)
-  #
-  # example of a database query
-  #
+  global si_customer_name
+  si_customer_name = request.form['si_customer_name']
+  
+
+
   cursor = g.conn.execute("SELECT cuisinename FROM cuisine")
   cuisinenames = []
   for result in cursor:
@@ -260,7 +282,7 @@ def customer():
   cursor.close()
 
 
-  context = dict(tag_data = tagnames, cuisine_data = cuisinenames, restaurant_data = restaurantnames)
+  context = dict(tag_data = tagnames, cuisine_data = cuisinenames, restaurant_data = restaurantnames, si_customer_name = si_customer_name)
 
   #
   # render_template looks in the templates/ folder for files.

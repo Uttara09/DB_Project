@@ -4,11 +4,62 @@
       font-size: 15pt;
       font-family: arial;
     }
+    .id{
+      font-size: 15pt;
+      font-family: arial;
+      color: black
+    }
+    .name{
+      font-size: 15pt;
+      font-family: arial;
+      color: blue
+    }
+    .desc{
+      font-size: 15pt;
+      font-family: arial;
+      color: green
+    }
+    .price{
+      font-size: 15pt;
+      font-family: arial;
+      color: maroon
+    }
+    .rname{
+      font-size: 15pt;
+      font-family: arial;
+      color: green
+    }
   </style>
 
 
 <body>
-	<button>Check out my revenue</button>
+	<p>Here are the items served at your restaurant</p>
+	<div>
+      {% for n in food_data %}
+        <div>
+          <span class="name">{{n[0]}}</span>
+          <span class="price">{{n[1]}}</span>
+          <span class="rname">{{n[2]}}</span>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div>
+    	<form action="/owner">
+		  <label for="fname">Food name</label><br>
+		  <input type="text" id="fname" name="fname"><br>
+		  <label for="rname">Restaurant name</label><br>
+		  <input type="text" id="rname" name="rname"><br>
+		  <label for="fprice">Price</label><br>
+		  <input type="text" id="fprice" name="fprice"><br><br>
+		  <input type="submit" value="Update Dish">
+		  <input type="submit" value="Delete Dish">
+		  <input type="submit" value="Add Dish">
+		</form> 
+    </div>
+    
+
+
   
 
 
