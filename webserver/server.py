@@ -257,21 +257,46 @@ def add():
   g.conn.execute('INSERT INTO test(name) VALUES (%s)', name)
   return redirect('/')
 
-@app.route('/food', methods=['POST'])
-def food():
-
-  CUISINE = request.form['cuisine']
-  TAG = request.form['dietTag']
-  RESTAURANT = request.form['rname']
-  DISH = request.form['dname']
-
-  cursor = g.conn.execute("""SELECT food.foodname as fname, food.description as fdesc, restaurant.name as rname, menuitem.price as price
+def getFoodByCusine(cusine):
+  CUSINE_SEARCH_QUERY = """SELECT food.foodname as fname, food.description as fdesc, restaurant.name as rname, menuitem.price as price
   FROM restaurant
   natural join menuitem
   natural join food
   join cuisine on food.cuisineid = cuisine.cuisineid
-  WHERE cuisinename = \'"""+CUISINE+"""\';""") 
+  WHERE cuisinename = \'cusineanchor\'"""
+  return CUSINE_SEARCH_QUERY.replace("cusineanchor", cusine)
 
+def getFoodByRestaurant(restaurant):
+  RESTAURANT_SEARCH_QUERY = """SELECT food.foodname as fname, food.description as fdesc, restaurant.name as rname, menuitem.price as price
+  FROM restaurant
+  natural join menuitem
+  natural join food
+  WHERE restaurant.name LIKE \'%%restaurantAnchor%%\'"""
+  return RESTAURANT_SEARCH_QUERY.replace("restaurantAnchor", restaurant)
+
+def getFoodByName(foodName):
+  FOOD_SEARCH_QUERY = """SELECT food.foodname as fname, food.description as fdesc, restaurant.name as rname, menuitem.price as price
+  FROM restaurant
+  natural join menuitem
+  natural join food
+  WHERE food.foodname LIKE \'%%foodAnchor%%\'"""
+  return FOOD_SEARCH_QUERY.replace("foodAnchor", foodName)
+
+def buidSearchQuery(cusine, restaurant, foodName, tag):
+  queryList = []
+  if cusine:
+    queryList.append(getFoodByCusine(cusine)) 
+  if restaurant:
+    queryList.append(getFoodByRestaurant(restaurant))
+  if foodName:
+    queryList.append(getFoodByName(foodName))
+  return " INTERSECT ".join(queryList)
+
+@app.route('/food', methods=['POST'])
+def food():
+  print(buidSearchQuery(request.form['cuisine'], request.form['rname'], request.form['dname'], request.form['dietTag']).replace('\n',''))
+  cursor = g.conn.execute(buidSearchQuery(request.form['cuisine'], request.form['rname'], request.form['dname'], request.form['dietTag']).replace('\n','')) ## TODO: Add new query here!
+  # cursor = g.conn.execute()
   foods = []
   for result in cursor:
     foods.append([result['fname'], result['fdesc'],result['price'],result['rname']])  
