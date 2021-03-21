@@ -8,9 +8,41 @@
 
 
 <body>
-  <h2>Hey! Who are you?</h2>
-  <p><a href="customer">I'm a customer</a></p>
-  <p><a href="owner">I'm an owner</a></p>
+  <p>Signin as Customer</p>
+  <form method="POST" action="/customer">
+    <label for="si_customer_name">Username:</label>
+    <input type="si_customer_name" id="si_customer_name" name="si_customer_name"><br><br>
+    <input type="submit">
+  </form>
+
+
+  <p>Signin as Owner</p>
+  <form method="POST" action="/owner">
+    <label for="si_owner_name">Username:</label>
+    <input type="si_owner_name" id="si_owner_name" name="si_owner_name"><br><br>
+    <input type="submit">
+  </form>
+
+  <p>Signup as Customer</p>
+  <form method="POST" action="/customer">
+    <label for="su_customer_name">Username:</label>
+    <input type="su_customer_name" id="su_customer_name" name="su_customer_name"><br><br>
+
+    <label for="su_billing_info">Billing Info:</label>
+    <input type="su_billing_info" id="su_billing_info" name="su_billing_info"><br><br>
+
+    <label for="su_customer_address">Address:</label>
+    <input type="su_customer_address" id="su_customer_address" name="su_customer_address"><br><br>
+
+    <label for="su_customer_ph">Phone:</label>
+    <input type="su_customer_ph" id="su_customer_ph" name="su_customer_ph"><br><br>
+    <input type="submit">
+  </form>
+
+  
+
+
+
 <!-- 
 <form method="POST" action="/add">
 <p>Name of new computer scientist: <input type="text" name="name"> <input type="submit" value="Add"></p>

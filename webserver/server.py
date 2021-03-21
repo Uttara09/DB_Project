@@ -164,6 +164,85 @@ def teardown_request(exception):
 def another():
   return render_template("another.html")
 
+def getFoodIdByName(foodName):
+  QUERY = "SELECT foodid as id from food where foodname = 'foodAnchor'"
+  QUERY = QUERY.replace('foodAnchor', foodName)
+  print(QUERY)
+  cursor = g.conn.execute(QUERY)
+  ans = ""
+  for result in cursor:
+    ans = result['id']  
+  cursor.close()
+  print("food",ans)
+  return ans
+
+def getRestaurantIdByName(restName):
+  QUERY = "SELECT restaurantid as id from restaurant where name = 'restAnchor'"
+  QUERY = QUERY.replace('restAnchor', restName)
+  print(QUERY)
+  cursor = g.conn.execute(QUERY)
+  ans = ""
+  for result in cursor:
+    ans = result['id']  
+  cursor.close()
+  print("restaurant",ans)
+  return ans
+
+
+@app.route('/owner/update', methods=['POST'])
+def owner_update():
+  restId = getRestaurantIdByName(request.form['rname'])
+  foodId = getFoodIdByName(request.form['fname'])
+  price = request.form['fprice']
+  print(restId, foodId, price)
+  QUERY = """
+  UPDATE menuitem
+  SET price = 9
+  WHERE foodid=foodIdAnchor and restaurantId=restaurantIdAnchor;
+  """
+  QUERY = QUERY.replace('foodIdAnchor', str(foodId)).replace('restaurantIdAnchor',str(restId)).replace('priceAnchor', str(price)).replace('\n','')
+  g.conn.execute(QUERY)
+  print("Inside owner update")
+
+  return owner()
+
+@app.route('/owner/delete', methods=['POST'])
+def owner_delete():
+  print("Inside owner delete")
+  fname = request.form['fname']
+  rname = request.form['rname']
+  fprice = request.form['fprice']
+  print('fname : ', fname)
+
+  return owner()
+
+@app.route('/owner/add', methods=['POST'])
+def owner_add():
+  print("Inside owner add")
+  return owner()
+
+@app.route('/owner', methods=['POST'])
+def owner():
+
+  global si_owner_name
+  if 'si_owner_name' in request.form:
+    si_owner_name = request.form['si_owner_name']
+
+  # get all food at this restaurant
+  cursor = g.conn.execute("""SELECT restaurant.name as rname, food.foodname as fname, menuitem.price as price
+  FROM restaurant
+  natural join menuitem
+  natural join food
+  JOIN users on restaurant.userid = users.userid
+  WHERE users.username = \'"""+si_owner_name+"""\';""")
+
+  food = []
+  for result in cursor:
+    food.append([result['fname'],result['price'],result['rname']])  
+  cursor.close()
+  context = dict(food_data = food)
+  return render_template("owner.html", **context)
+
 @app.route('/order')
 def order():
   print(request.form)
@@ -218,7 +297,6 @@ def food():
   print(buidSearchQuery(request.form['cuisine'], request.form['rname'], request.form['dname'], request.form['dietTag']).replace('\n',''))
   cursor = g.conn.execute(buidSearchQuery(request.form['cuisine'], request.form['rname'], request.form['dname'], request.form['dietTag']).replace('\n','')) ## TODO: Add new query here!
   # cursor = g.conn.execute()
-
   foods = []
   for result in cursor:
     foods.append([result['fname'], result['fdesc'],result['price'],result['rname']])  
@@ -257,14 +335,39 @@ def restaurant():
 
   context = dict(restaurant_items_data = restaurant_items, restaurant_reviews_data = restaurant_reviews)
   return render_template("restaurant.html", **context)
+si_customer_name = ""
+su_customer_name = ""
+su_billing_info = ""
+su_customer_address = ""
+su_customer_ph = ""
 
-
-@app.route('/customer')
+@app.route('/customer', methods=['POST'])
 def customer():
-  print(request.args)
-  #
-  # example of a database query
-  #
+  
+  global si_customer_name
+  global su_customer_name
+  global su_billing_info
+  global su_customer_address
+  global su_customer_ph
+
+  if 'si_customer_name' in request.form:
+    print("Trying to Sign in")
+    si_customer_name = request.form['si_customer_name']
+    
+
+  if 'su_customer_name' in request.form:
+    print("Trying to Sign up")
+    su_customer_name = request.form['su_customer_name']
+    su_billing_info = request.form['su_billing_info']
+    su_customer_address = request.form['su_customer_address']
+    su_customer_ph = request.form['su_customer_ph']
+
+    ### Add this customer to customer table
+    
+    ### render the login page again
+    return render_template("login.html")
+    ### then the customer logs in normally
+
   cursor = g.conn.execute("SELECT cuisinename FROM cuisine")
   cuisinenames = []
   for result in cursor:
@@ -284,7 +387,7 @@ def customer():
   cursor.close()
 
 
-  context = dict(tag_data = tagnames, cuisine_data = cuisinenames, restaurant_data = restaurantnames)
+  context = dict(tag_data = tagnames, cuisine_data = cuisinenames, restaurant_data = restaurantnames, si_customer_name = si_customer_name)
 
   #
   # render_template looks in the templates/ folder for files.
