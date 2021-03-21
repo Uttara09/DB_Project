@@ -4,28 +4,53 @@
       font-size: 15pt;
       font-family: arial;
     }
+    .name{
+      font-size: 15pt;
+      font-family: arial;
+      color: blue
+    }
+    .desc{
+      font-size: 15pt;
+      font-family: arial;
+      color: green
+    }
+    .price{
+      font-size: 15pt;
+      font-family: arial;
+      color: maroon
+    }
   </style>
 
 
 <body>
   <h1>Here are the dishes along with the restaurants they are served in. Click on the restaurant name in case you want to see more details about the restaurant like menu, reviews etc</h1>
   <!-- <div>{{cuisine_data}}</div> -->
+  <form method="POST" action="/order" >
+    <div>
+      {% for n in food_data %}
+        <div>
+          <span class="name">{{n[0]}}</span>
+          <span class="desc">{{n[1]}}</span>
+          <span class="price">{{n[2]}}</span>
+          <select name="quantity" id="quantity">
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+          </select>
+          <span class="price">{{n[3]}}</span>
+          <!-- <button name="rname" type="submit" value="{{n[3]}}">{{n[3]}}</button> -->
+          <form method="post" action="/restaurant">
+            <input type="submit" value="ADD">
+          </form>
+        </div>
+      {% endfor %}
+    </div>
+    <button name="checkout" type="submit" value="checkout">Checkout</button>
 
-  <div>
-    {% for n in food_data %}
-    <form method="POST" action="/restaurant" >
-      <div>
-        <span>{{n[0]}}</span>
-        <span>{{n[1]}}</span>
-        <span>{{n[2]}}</span>
-        <!-- <p><a href="another">{{n[1]}}</a></p> -->
-        <!-- <p><a href="restaurant">{{n[1]}}</a></p> -->
-        <button name="rname" type="submit" value="{{n[1]}}">{{n[3]}}</button>
-      </div>
-    </form>
-    
-    {% endfor %}
-  </div>
+  </form>
 
 <!-- <p><a href="another">Go to the other page</a></p> -->
 
