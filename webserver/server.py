@@ -168,7 +168,8 @@ def another():
 def owner():
   print("HIIIII")
   global si_owner_name
-  si_owner_name = request.form['si_owner_name']
+  if 'si_owner_name' in request.form:
+    si_owner_name = request.form['si_owner_name']
   print('si_owner_name : ', si_owner_name)
   # get all food at this restaurant
 
