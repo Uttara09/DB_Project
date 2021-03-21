@@ -353,7 +353,10 @@ def customer():
   if 'si_customer_name' in request.form:
     print("Trying to Sign in")
     si_customer_name = request.form['si_customer_name']
-    
+    ### TODO: Check if this customer doesn't exist
+    ### TODO: Create an alert saying invalid customer name
+    ### TODO: Redirect back to login page
+
 
   if 'su_customer_name' in request.form:
     print("Trying to Sign up")
@@ -362,11 +365,11 @@ def customer():
     su_customer_address = request.form['su_customer_address']
     su_customer_ph = request.form['su_customer_ph']
 
-    ### Add this customer to customer table
-    
-    ### render the login page again
+    ### TODO: Add this customer to customer table
+
+    ### render the login page again so customer can login manually
     return render_template("login.html")
-    ### then the customer logs in normally
+    
 
   cursor = g.conn.execute("SELECT cuisinename FROM cuisine")
   cuisinenames = []
