@@ -218,18 +218,8 @@ def getUserIdByName(name):
 
 @app.route('/restaurant/add_review', methods=['POST'])
 def add_review():
-  print("Inside add_review!!!!!!!!")
-  print('REVIEW : ', request.form['review'])
-  print("RESTAURANT : ", RESTAURANT)
-  print("si_customer_name : ", si_customer_name)
-
-  ### get userid from name
-  
-  ### add entry in dinesat table
   g.conn.execute('INSERT INTO dinesat(userid,restaurantid) VALUES (%s, %s)', getCustomerIdByName(si_customer_name), getRestaurantIdByName(RESTAURANT))
-  ### insert review to review table
   g.conn.execute('INSERT INTO review(userid,restaurantid,reviewtext) VALUES (%s, %s, %s)', getCustomerIdByName(si_customer_name), getRestaurantIdByName(RESTAURANT), request.form['review'])
-
   return restaurant()
 
 @app.route('/restaurant/add_reservation', methods=['POST'])
@@ -290,15 +280,12 @@ def owner_add():
 
 @app.route('/owner', methods=['POST'])
 def owner():
-
   global si_owner_name
   if 'si_owner_name' in request.form:
     si_owner_name = request.form['si_owner_name']
     if not getOwnerIdByName(si_owner_name):
       print("There is no such user")
       return render_template("login.html")
-
-
 
   # get all food at this restaurant
   cursor = g.conn.execute("""SELECT restaurant.name as rname, food.foodname as fname, menuitem.price as price
@@ -315,32 +302,84 @@ def owner():
   context = dict(food_data = food)
   return render_template("owner.html", **context)
 
-@app.route('/order')
+def deleteOrdersByUserId(userId):
+  orderId = getOrdersByUserId(userId)
+  g.conn.execute("DELETE FROM orders WHERE orderid = %s", orderId)
+  print("Deleted")
+  return getOrdersByUserId(userId)  
+
+@app.route('/order', methods=['POST'])
 def order():
-  print(request.form)
-  for x in request.form:
-    print(x)
-  return render_template("order.html")
+  # print(request.form)
+  # for x in request.form:
+  #   print(x)
+  custId = str(getCustomerIdByName(si_customer_name))
+  cursor = g.conn.execute("""SELECT foodname, price, name as restaurantname, quantity
+                    FROM orderitem
+                    natural join orders
+                    natural join menuitem
+                    natural join food
+                    join restaurant on restaurant.restaurantid = menuitem.restaurantid
+                    WHERE orders.userid = \'"""+custId+"""\';""")
+  orderitems = []
+  for result in cursor:
+    orderitems.append([result['foodname'],str(result['price']),result['restaurantname'],str(result['quantity'])])  
+  cursor.close()
+  
+  cursor = g.conn.execute("""SELECT price*quantity as amount
+                    FROM orderitem
+                    natural join orders
+                    natural join menuitem
+                    natural join food
+                    join restaurant on restaurant.restaurantid = menuitem.restaurantid
+                    WHERE orders.userid = \'"""+custId+"""\';""")
+
+  total_bill = sum([result['amount'] for result in cursor])
+  cursor.close()
+
+  context = dict(order_data = orderitems, total_bill = total_bill)
+  deleteOrdersByUserId(custId)
+  return render_template("order.html", **context)
+
+def getOrdersByUserId(userid):
+  cursor = g.conn.execute("SELECT orderid as id FROM orders where userid=%s", userid)
+  ans = None
+  for result in cursor:
+    ans = result['id']  
+  cursor.close()
+  print("orders", ans)
+  return ans
+
+def createOrderForUser(userId):
+  g.conn.execute("INSERT INTO orders(userid) VALUES (%s)", userId)
+  print("Inserted")
+  return getOrdersByUserId(userId)
+
+def createOrderItem(foodId, orderId, restaurantId, qty):
+  print("Inserted orderItem ", foodId, orderId, restaurantId, qty)
+  g.conn.execute("INSERT INTO orderitem(foodid, orderid, restaurantid, quantity) VALUES (%s,%s,%s,%s)", foodId, orderId, restaurantId, qty)
+  print("Inserted orderItem")
+  return
 
 # Example of adding new data to the database
 @app.route('/add', methods=['POST'])
 def add():
   global customer_preferences
-  # food_name = request.form['food_name']
-  # food_price = request.form['food_price']
+  user_id = getCustomerIdByName(si_customer_name)
+  orderId = getOrdersByUserId(user_id)
+  if not orderId:
+    orderId = createOrderForUser(user_id)
   qty = request.form['quantity']
   print('qty : ', qty)
+  if not qty:
+    qty = 1
   values = request.form['add_action_button']
   print('add_action_button = ', request.form['add_action_button'])
   split_values = values.split("$")
   print(split_values)
-
-  # print('food_name : ', food_name)
-  # print('food_price : ', food_price)
-  food_name, food_price = None, None
-
-  # return redirect('/food')
-  # return ('',200)
+  foodId = getFoodIdByName(split_values[0])
+  restaurantId = getRestaurantIdByName(split_values[1])
+  createOrderItem(foodId, orderId, restaurantId, qty)
   return render_template("food.html", **customer_preferences)
 
 
