@@ -188,6 +188,14 @@ def getRestaurantIdByName(restName):
   print("restaurant",ans)
   return ans
 
+def getCustomerIdByName(name):
+  cursor = g.conn.execute("SELECT userid as id FROM users natural join customer WHERE username=%s", name)
+  ans = ""
+  for result in cursor:
+    ans = result['id']  
+  cursor.close()
+  print("customer", name,ans)
+  return ans
 
 @app.route('/restaurant/add_review', methods=['POST'])
 def add_review():
@@ -199,7 +207,9 @@ def add_review():
   ### get userid from name
   
   ### add entry in dinesat table
+  g.conn.execute('INSERT INTO dinesat(userid,restaurantid) VALUES (%s, %s)', getCustomerIdByName(si_customer_name), getRestaurantIdByName(RESTAURANT))
   ### insert review to review table
+  g.conn.execute('INSERT INTO review(userid,restaurantid,reviewtext) VALUES (%s, %s, %s)', getCustomerIdByName(si_customer_name), getRestaurantIdByName(RESTAURANT), request.form['review'])
 
   return restaurant()
 
@@ -340,6 +350,8 @@ RESTAURANT = ""
 @app.route('/restaurant', methods=['POST'])
 def restaurant():
   global RESTAURANT
+  if 'submit_restaurant_button' in request.form:    
+    RESTAURANT = request.form['submit_restaurant_button']
   ## TODO: Add new block of code here with appropriate lists etc
   # print("HELLO")
   # print("RESTAURANT : ", RESTAURANT)
