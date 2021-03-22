@@ -197,6 +197,15 @@ def getCustomerIdByName(name):
   print("customer", name,ans)
   return ans
 
+def getOwnerIdByName(name):
+  cursor = g.conn.execute("SELECT userid as id FROM users natural join owner WHERE username=%s", name)
+  ans = ""
+  for result in cursor:
+    ans = result['id']  
+  cursor.close()
+  print("owner", name,ans)
+  return ans
+
 def getUserIdByName(name):
   cursor = g.conn.execute("SELECT userid as id FROM users WHERE username=%s", name)
   ans = ""
@@ -276,6 +285,11 @@ def owner():
   global si_owner_name
   if 'si_owner_name' in request.form:
     si_owner_name = request.form['si_owner_name']
+    if not getOwnerIdByName(si_owner_name):
+      print("There is no such user")
+      return render_template("login.html")
+
+
 
   # get all food at this restaurant
   cursor = g.conn.execute("""SELECT restaurant.name as rname, food.foodname as fname, menuitem.price as price
