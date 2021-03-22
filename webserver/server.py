@@ -307,8 +307,8 @@ def order():
   # print(request.form)
   # for x in request.form:
   #   print(x)
-  custId = getCustomerIdByName(si_customer_name)
-  g.conn.execute("""SELECT foodname, price, name as restaurantname, quantity
+  custId = str(getCustomerIdByName(si_customer_name))
+  cursor = g.conn.execute("""SELECT foodname, price, name as restaurantname, quantity
                     FROM orderitem
                     natural join orders
                     natural join menuitem
@@ -317,10 +317,10 @@ def order():
                     WHERE orders.userid = \'"""+custId+"""\';""")
   orderitems = []
   for result in cursor:
-    orderitems.append([result['foodname'],result['price'],result['restaurantname'],result['quantity']])  
+    orderitems.append([result['foodname'],str(result['price']),result['restaurantname'],str(result['quantity'])])  
   cursor.close()
-
-  return render_template("order.html")
+  context = dict(order_data = orderitems)
+  return render_template("order.html", **context)
 
 def getOrdersByUserId(userid):
   cursor = g.conn.execute("SELECT orderid as id FROM orders where userid=%s", userid)

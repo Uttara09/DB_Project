@@ -22,7 +22,24 @@
   </style>
 
 <body>
-  Hello world!
+  <h2>These are the items you have ordered</h2>
+  <table>
+    <tr>
+      <th>Item name</th>
+      <th>Price per item</th>
+      <th>Quantity</th>
+      <th>Restaurant name</th>
+    </tr>
+    {% for n in order_data %}
+      <tr>
+        <td>{{n[0]}}</td>
+        <td>{{n[1]}}</td>
+        <td>{{n[3]}}</td>
+        <td>{{n[2]}}</td>
+      </tr>
+  {% endfor %}
+  </table>
+  
 
 </body>
 
