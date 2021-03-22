@@ -19,13 +19,19 @@
       font-family: arial;
       color: maroon
     }
+    .rname{
+      font-size: 15pt;
+      font-family: arial;
+      color: pink
+    }
   </style>
 
 
 <body>
   <h1>Here are the dishes along with the restaurants they are served in. Click on the restaurant name in case you want to see more details about the restaurant like menu, reviews etc</h1>
   <!-- <div>{{cuisine_data}}</div> -->
-  <form method="POST" action="/order" >
+  <div>
+    <form method="POST" action="/order" >
     <div>
       {% for n in food_data %}
         <div>
@@ -40,17 +46,20 @@
             <option value="4">4</option>
             <option value="5">5</option>
           </select>
-          <span class="price">{{n[3]}}</span>
-          <!-- <button name="rname" type="submit" value="{{n[3]}}">{{n[3]}}</button> -->
-          <form method="post" action="/restaurant">
-            <input type="submit" value="ADD">
-          </form>
+          <div>
+           <form method="post" action="/restaurant">
+            <input type="submit" name="submit_restaurant_button" value="{{n[3]}}">
+          </form> 
+          </div>
+          
+          <button type="submit">ADD</button>
         </div>
       {% endfor %}
     </div>
     <button name="checkout" type="submit" value="checkout">Checkout</button>
-
-  </form>
+  </form> 
+  </div>
+  
 
 <!-- <p><a href="another">Go to the other page</a></p> -->
 
