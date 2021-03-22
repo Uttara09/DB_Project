@@ -1,15 +1,4 @@
-
-"""
-Columbia's COMS W4111.001 Introduction to Databases
-Example Webserver
-To run locally:
-    python server.py
-Go to http://localhost:8111 in your browser.
-A debugger such as "pdb" may be helpful for debugging.
-Read about it online.
-"""
 import os
-  # accessible as a variable in index.html:
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from flask import Flask, request, render_template, g, redirect, Response
@@ -18,37 +7,18 @@ tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
 
 
-#
-# The following is a dummy URI that does not connect to a valid database. You will need to modify it to connect to your Part 2 database in order to use the data.
-#
-# XXX: The URI should be in the format of: 
-#
-#     postgresql://USER:PASSWORD@34.73.36.248/project1
-#
-# For example, if you had username zy2431 and password 123123, then the following line would be:
-#
-#     DATABASEURI = "postgresql://zy2431:123123@34.73.36.248/project1"
-#
-# DATABASEURI = "postgresql://user:password@34.73.36.248/project1" # Modify this with your own credentials you received from Joseph!
 DATABASEURI = "postgresql://aa4761:753658@34.73.36.248:5432/project1" # Modify this with your own credentials you received from Joseph!
-
-#
-# This line creates a database engine that knows how to connect to the URI above.
-#
 engine = create_engine(DATABASEURI)
 
-#
-# Example of running queries in your database
-# Note that this will probably not work if you already have a table named 'test' in your database, containing meaningful data. 
-# This is only an example showing you how to run queries in your database using SQLAlchemy.
-#
-
-# engine.execute("""CREATE TABLE IF NOT EXISTS test (
-#   id serial,
-#   name text
-# );""")
-# engine.execute("""INSERT INTO test(name) VALUES ('grace hopper'), ('alan turing'), ('ada lovelace');""")
-
+# Global Variables
+customer_preferences = None
+RESTAURANT = ""
+restaurant_preferences = None
+si_customer_name = ""
+su_customer_name = ""
+su_billing_info = ""
+su_customer_address = ""
+su_customer_ph = ""
 
 @app.before_request
 def before_request():
@@ -77,90 +47,6 @@ def teardown_request(exception):
   except Exception as e:
     pass
 
-
-#
-# @app.route is a decorator around index() that means:
-#   run index() whenever the user tries to access the "/" path using a GET request
-#
-# If you wanted the user to go to, for example, localhost:8111/foobar/ with POST or GET then you could use:
-#
-#       @app.route("/foobar/", methods=["POST", "GET"])
-#
-# PROTIP: (the trailing / in the path is important)
-# 
-# see for routing: https://flask.palletsprojects.com/en/1.1.x/quickstart/#routing
-# see for decorators: http://simeonfranklin.com/blog/2012/jul/1/python-decorators-in-12-steps/
-#
-
-# @app.route('/')
-# def index():
-#   """
-#   request is a special object that Flask provides to access web request information:
-
-#   request.method:   "GET" or "POST"
-#   request.form:     if the browser submitted a form, this contains the data in the form
-#   request.args:     dictionary of URL arguments, e.g., {a:1, b:2} for http://localhost?a=1&b=2
-
-#   See its API: https://flask.palletsprojects.com/en/1.1.x/api/#incoming-request-data
-#   """
-
-#   # DEBUG: this is debugging code to see what request looks like
-#   print(request.args)
-
-
-#   #
-#   # example of a database query
-#   #
-#   cursor = g.conn.execute("SELECT name FROM test")
-#   names = []
-#   for result in cursor:
-#     names.append(result['name'])  # can also be accessed using result[0]
-#   cursor.close()
-
-#   #
-#   # Flask uses Jinja templates, which is an extension to HTML where you can
-#   # pass data to a template and dynamically generate HTML based on the data
-#   # (you can think of it as simple PHP)
-#   # documentation: https://realpython.com/primer-on-jinja-templating/
-#   #
-#   # You can see an example template in templates/index.html
-#   #
-#   # context are the variables that are passed to the template.
-#   # for example, "data" key in the context variable defined below will be 
-#   # accessible as a variable in index.html:
-#   #
-#   #     # will print: [u'grace hopper', u'alan turing', u'ada lovelace']
-#   #     <div>{{data}}</div>
-#   #     
-#   #     # creates a <div> tag for each element in data
-#   #     # will print: 
-#   #     #
-#   #     #   <div>grace hopper</div>
-#   #     #   <div>alan turing</div>
-#   #     #   <div>ada lovelace</div>
-#   #     #
-#   #     {% for n in data %}
-#   #     <div>{{n}}</div>
-#   #     {% endfor %}
-#   #
-#   context = dict(data = names)
-
-
-#   #
-#   # render_template looks in the templates/ folder for files.
-#   # for example, the below file reads template/index.html
-#   #
-#   return render_template("index.html", **context)
-
-#
-# This is an example of a different path.  You can see it at:
-# 
-#     localhost:8111/another
-#
-# Notice that the function name is another() rather than index()
-# The functions for each app.route need to have different names
-#
-customer_preferences = None
 @app.route('/another')
 def another():
   return render_template("another.html")
@@ -215,6 +101,21 @@ def getUserIdByName(name):
   cursor.close()
   print("customer", name,ans)
   return ans
+
+@app.errorhandler(500)
+def special_exception_handler(error):
+  context = dict(error_message = "Error Occoured, please retry!")
+  return render_template("error.html", **context)
+
+@app.errorhandler(400)
+def special_exception_handlers(error):
+  context = dict(error_message = "Error Occoured, please retry!")
+  return render_template("error.html", **context)
+
+@app.errorhandler(404)
+def special_exception_handlerx(error):
+  context = dict(error_message = "Error Occoured, please retry!")
+  return render_template("error.html", **context)
 
 @app.route('/restaurant/add_review', methods=['POST'])
 def add_review():
@@ -543,21 +444,20 @@ def buidSearchQuery(cusine, restaurant, foodName, tag):
 @app.route('/food', methods=['POST'])
 def food():
   global customer_preferences
-  print(buidSearchQuery(request.form['cuisine'], request.form['rname'], request.form['dname'], request.form['dietTag']).replace('\n',''))
-  cursor = g.conn.execute(buidSearchQuery(request.form['cuisine'], request.form['rname'], request.form['dname'], request.form['dietTag']).replace('\n','')) ## TODO: Add new query here!
-  # cursor = g.conn.execute()
-  foods = []
-  for result in cursor:
-    foods.append([result['fname'], result['fdesc'],result['price'],result['rname']])  
-  cursor.close()
+  if request.form:
+    print(buidSearchQuery(request.form['cuisine'], request.form['rname'], request.form['dname'], request.form['dietTag']).replace('\n',''))
+    cursor = g.conn.execute(buidSearchQuery(request.form['cuisine'], request.form['rname'], request.form['dname'], request.form['dietTag']).replace('\n','')) ## TODO: Add new query here!
+    # cursor = g.conn.execute()
+    foods = []
+    for result in cursor:
+      foods.append([result['fname'], result['fdesc'],result['price'],result['rname']])  
+    cursor.close()
 
-  context = dict(food_data = foods)
-  customer_preferences = context
-  return render_template("food.html", **context)
+    context = dict(food_data = foods)
+    customer_preferences = context
+    return render_template("food.html", **context)
+  return render_template("food.html", **customer_preferences)
 
-
-RESTAURANT = ""
-restaurant_preferences = None
 @app.route('/restaurant', methods=['POST'])
 def restaurant():
   global RESTAURANT
@@ -593,11 +493,6 @@ def restaurant():
   restaurant_preferences = context
   return render_template("restaurant.html", **context)
 
-si_customer_name = ""
-su_customer_name = ""
-su_billing_info = ""
-su_customer_address = ""
-su_customer_ph = ""
 @app.route('/customer', methods=['POST'])
 def customer():
   login_message = ""
