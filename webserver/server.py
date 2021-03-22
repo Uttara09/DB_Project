@@ -322,6 +322,119 @@ def getFoodByName(foodName):
   WHERE food.foodname LIKE \'%%foodAnchor%%\'"""
   return FOOD_SEARCH_QUERY.replace("foodAnchor", foodName)
 
+def getGlutenFreeFood():
+  QUERY = """
+  SELECT food.foodname as fname, food.description as fdesc, restaurant.name as rname, menuitem.price as price
+  FROM restaurant
+  natural join menuitem
+  natural join food
+  WHERE food.foodid NOT IN (
+  SELECT DISTINCT foodid
+  FROM food
+  natural join foodingredients
+  join ingredient on foodingredients.ingredientid = ingredient.ingredientid
+  WHERE ingredient.tagid IN (18)
+  );
+  """
+  return QUERY
+
+def getMeatFood():
+  QUERY = """
+  SELECT food.foodname as fname, food.description as fdesc, restaurant.name as rname, menuitem.price as price
+  FROM restaurant
+  natural join menuitem
+  natural join food
+  WHERE food.foodid IN (
+  SELECT DISTINCT foodid
+  FROM food
+  natural join foodingredients
+  join ingredient on foodingredients.ingredientid = ingredient.ingredientid
+  WHERE ingredient.tagid IN (14, 16, 19, 20)  
+  );
+  """
+  return QUERY
+
+def getNutFreeFood():
+  QUERY = """
+  SELECT food.foodname as fname, food.description as fdesc, restaurant.name as rname, menuitem.price as price
+  FROM restaurant
+  natural join menuitem
+  natural join food
+  WHERE food.foodid NOT IN (
+  SELECT DISTINCT foodid
+  FROM food
+  natural join foodingredients
+  join ingredient on foodingredients.ingredientid = ingredient.ingredientid
+  WHERE ingredient.tagid IN (17)  
+  );
+  """
+  return QUERY
+
+def getPescetarianFood():
+  QUERY = """
+  SELECT food.foodname as fname, food.description as fdesc, restaurant.name as rname, menuitem.price as price
+  FROM restaurant
+  natural join menuitem
+  natural join food
+  WHERE food.foodid NOT IN (
+  SELECT DISTINCT foodid
+  FROM food
+  natural join foodingredients
+  join ingredient on foodingredients.ingredientid = ingredient.ingredientid
+  WHERE ingredient.tagid IN (14, 19, 16)   
+  );
+  """
+  return QUERY
+
+def getVegitarianFood():
+  QUERY = """
+  SELECT food.foodname as fname, food.description as fdesc, restaurant.name as rname, menuitem.price as price
+  FROM restaurant
+  natural join menuitem
+  natural join food
+  WHERE food.foodid NOT IN (
+  SELECT DISTINCT foodid
+  FROM food
+  natural join foodingredients
+  join ingredient on foodingredients.ingredientid = ingredient.ingredientid
+  WHERE ingredient.tagid IN (14, 16, 19, 20)  
+  );
+  """
+  return QUERY
+
+def getVeganFood():
+  QUERY = """
+  SELECT food.foodname as fname, food.description as fdesc, restaurant.name as rname, menuitem.price as price
+  FROM restaurant
+  natural join menuitem
+  natural join food
+  WHERE food.foodid NOT IN (
+  SELECT DISTINCT foodid
+  FROM food
+  natural join foodingredients
+  join ingredient on foodingredients.ingredientid = ingredient.ingredientid
+  WHERE ingredient.tagid IN (14, 15, 16, 19, 20)  
+  );
+  """
+  return QUERY
+
+def getFoodByTag(tag):
+  if tag == 'vegan':
+    return getVeganFood()
+  if tag == 'vegetarian':
+    return getVegitarianFood()
+  if tag == 'gluten-free':
+    return getGlutenFreeFood()
+  if tag == 'nut-free':
+    return getNutFreeFood()
+  if tag == 'contains-meat':
+    return getMeatFood()
+  if tag == 'pescetarian':
+    return getPescetarianFood()
+
+
+
+
 def buidSearchQuery(cusine, restaurant, foodName, tag):
   queryList = []
   if cusine:
@@ -330,6 +443,8 @@ def buidSearchQuery(cusine, restaurant, foodName, tag):
     queryList.append(getFoodByRestaurant(restaurant))
   if foodName:
     queryList.append(getFoodByName(foodName))
+  if tag:
+    queryList.append(getFoodByTag(tag))
   return " INTERSECT ".join(queryList)
 
 @app.route('/food', methods=['POST'])
