@@ -302,6 +302,12 @@ def owner():
   context = dict(food_data = food)
   return render_template("owner.html", **context)
 
+def deleteOrdersByUserId(userId):
+  orderId = getOrdersByUserId(userId)
+  g.conn.execute("DELETE FROM orders WHERE orderid = %s", orderId)
+  print("Deleted")
+  return getOrdersByUserId(userId)  
+
 @app.route('/order', methods=['POST'])
 def order():
   # print(request.form)
@@ -320,6 +326,7 @@ def order():
     orderitems.append([result['foodname'],str(result['price']),result['restaurantname'],str(result['quantity'])])  
   cursor.close()
   context = dict(order_data = orderitems)
+  deleteOrdersByUserId(custId)
   return render_template("order.html", **context)
 
 def getOrdersByUserId(userid):
