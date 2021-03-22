@@ -53,6 +53,22 @@
       <input type="submit" value="Submit">
     </form>
   </div>
+  <h2>Create a reservation</h2>
+  <!-- <form method="post" action="/restaurant/add_reservation">
+    <input type="textarea" id="review" name="review"><br><br>
+    <input type="submit" value="Submit">
+  </form> -->
+  <form method="post" action="/restaurant/add_reservation">
+    <label for="Date">Date</label>
+    <input type="date" id="reservation_date" name="reservation_date" required>
+    <label for="Time">Time</label>
+    <input type="time" id="reservation_time" name="reservation_time" required>
+    <!-- <label for="Time">Date/Time</label>
+    <input type="datetime" name="reservation_datetime" name="reservation_datetime" required> -->
+    <label for="Guests">Guests</label>
+    <input type="number" id="guests" name="guests" min="1" max="10">
+    <input type="submit">
+  </form>
 
 
 <!-- <p><a href="another">Go to the other page</a></p> -->

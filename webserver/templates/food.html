@@ -38,16 +38,9 @@
           <span class="name">{{n[0]}}</span>
           <span class="desc">{{n[1]}}</span>
           <span class="price">{{n[2]}}</span>
-          <select name="quantity" id="quantity">
-            <option value="0">0</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-          </select>
           <div>
            <form method="post" action="/restaurant">
+            <input type="number" id="quantity" name="quantity" min="0" max="10">
             <input type="submit" name="submit_restaurant_button" value="{{n[3]}}">
           </form> 
           </div>

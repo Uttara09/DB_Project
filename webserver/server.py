@@ -203,6 +203,22 @@ def add_review():
 
   return restaurant()
 
+@app.route('/restaurant/add_reservation', methods=['POST'])
+def create_reservation():
+  print("Inside create_reservation!!!!!!!!")
+  # print('REVIEW : ', request.form['review'])
+  print("RESTAURANT : ", RESTAURANT)
+  print("si_customer_name : ", si_customer_name)
+  print("DATE : ", request.form['reservation_date'])
+  print("TIME : ", request.form['reservation_time'])
+  ### get userid from name
+  
+  ### add entry in dinesat table
+  ### insert review to review table
+
+  return restaurant()
+
+
 @app.route('/owner/update', methods=['POST'])
 def owner_update():
   restId = getRestaurantIdByName(request.form['rname'])
@@ -324,7 +340,6 @@ RESTAURANT = ""
 @app.route('/restaurant', methods=['POST'])
 def restaurant():
   global RESTAURANT
-  RESTAURANT = request.form['submit_restaurant_button']
   ## TODO: Add new block of code here with appropriate lists etc
   # print("HELLO")
   # print("RESTAURANT : ", RESTAURANT)
@@ -352,12 +367,12 @@ def restaurant():
 
   context = dict(restaurant_items_data = restaurant_items, restaurant_reviews_data = restaurant_reviews)
   return render_template("restaurant.html", **context)
+
 si_customer_name = ""
 su_customer_name = ""
 su_billing_info = ""
 su_customer_address = ""
 su_customer_ph = ""
-
 @app.route('/customer', methods=['POST'])
 def customer():
   
