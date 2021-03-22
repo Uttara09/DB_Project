@@ -104,17 +104,17 @@ def getUserIdByName(name):
 
 @app.errorhandler(500)
 def special_exception_handler(error):
-  context = dict(error_message = "Error Occoured, please retry!")
+  context = dict(error_message = "Error Occoured")
   return render_template("error.html", **context)
 
 @app.errorhandler(400)
 def special_exception_handlers(error):
-  context = dict(error_message = "Error Occoured, please retry!")
+  context = dict(error_message = "Error Occoured")
   return render_template("error.html", **context)
 
 @app.errorhandler(404)
 def special_exception_handlerx(error):
-  context = dict(error_message = "Error Occoured, please retry!")
+  context = dict(error_message = "Error Occoured")
   return render_template("error.html", **context)
 
 @app.route('/restaurant/add_review', methods=['POST'])
