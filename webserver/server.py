@@ -218,18 +218,8 @@ def getUserIdByName(name):
 
 @app.route('/restaurant/add_review', methods=['POST'])
 def add_review():
-  print("Inside add_review!!!!!!!!")
-  print('REVIEW : ', request.form['review'])
-  print("RESTAURANT : ", RESTAURANT)
-  print("si_customer_name : ", si_customer_name)
-
-  ### get userid from name
-  
-  ### add entry in dinesat table
   g.conn.execute('INSERT INTO dinesat(userid,restaurantid) VALUES (%s, %s)', getCustomerIdByName(si_customer_name), getRestaurantIdByName(RESTAURANT))
-  ### insert review to review table
   g.conn.execute('INSERT INTO review(userid,restaurantid,reviewtext) VALUES (%s, %s, %s)', getCustomerIdByName(si_customer_name), getRestaurantIdByName(RESTAURANT), request.form['review'])
-
   return restaurant()
 
 @app.route('/restaurant/add_reservation', methods=['POST'])
@@ -315,11 +305,24 @@ def owner():
   context = dict(food_data = food)
   return render_template("owner.html", **context)
 
-@app.route('/order')
+@app.route('/order', methods=['POST'])
 def order():
-  print(request.form)
-  for x in request.form:
-    print(x)
+  # print(request.form)
+  # for x in request.form:
+  #   print(x)
+  custId = getCustomerIdByName(si_customer_name)
+  g.conn.execute("""SELECT foodname, price, name as restaurantname, quantity
+                    FROM orderitem
+                    natural join orders
+                    natural join menuitem
+                    natural join food
+                    join restaurant on restaurant.restaurantid = menuitem.restaurantid
+                    WHERE orders.userid = \'"""+custId+"""\';""")
+  orderitems = []
+  for result in cursor:
+    orderitems.append([result['foodname'],result['price'],result['restaurantname'],result['quantity']])  
+  cursor.close()
+
   return render_template("order.html")
 
 # Example of adding new data to the database
