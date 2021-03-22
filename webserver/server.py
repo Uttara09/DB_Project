@@ -281,11 +281,14 @@ def owner_add():
 @app.route('/owner', methods=['POST'])
 def owner():
   global si_owner_name
+  login_message = ""
   if 'si_owner_name' in request.form:
     si_owner_name = request.form['si_owner_name']
     if not getOwnerIdByName(si_owner_name):
       print("There is no such user")
-      return render_template("login.html")
+      login_message = "Invalid user, please login with correct username"
+      context = dict(login_message = login_message)
+      return render_template("login.html", **context)
 
   # get all food at this restaurant
   cursor = g.conn.execute("""SELECT restaurant.name as rname, food.foodname as fname, menuitem.price as price
@@ -299,7 +302,7 @@ def owner():
   for result in cursor:
     food.append([result['fname'],result['price'],result['rname']])  
   cursor.close()
-  context = dict(food_data = food)
+  context = dict(food_data = food, login_message = login_message)
   return render_template("owner.html", **context)
 
 def deleteOrdersByUserId(userId):
@@ -597,7 +600,7 @@ su_customer_address = ""
 su_customer_ph = ""
 @app.route('/customer', methods=['POST'])
 def customer():
-  
+  login_message = ""
   global si_customer_name
   global su_customer_name
   global su_billing_info
@@ -610,7 +613,9 @@ def customer():
 
     if not getCustomerIdByName(si_customer_name):
       print("There is no such user")
-      return render_template("login.html")
+      login_message = "Invalid user, please login with correct username"
+      context = dict(login_message = login_message)
+      return render_template("login.html", **context)
     
 
   if 'su_customer_name' in request.form:
@@ -645,7 +650,7 @@ def customer():
     restaurantnames.append(result['name'])  # can also be accessed using result[0]
   cursor.close()
 
-  context = dict(tag_data = tagnames, cuisine_data = cuisinenames, restaurant_data = restaurantnames, si_customer_name = si_customer_name)
+  context = dict(tag_data = tagnames, cuisine_data = cuisinenames, restaurant_data = restaurantnames, si_customer_name = si_customer_name, login_message = login_message)
 
   return render_template("customer.html", **context)
 
