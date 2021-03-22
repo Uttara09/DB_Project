@@ -188,6 +188,30 @@ def getRestaurantIdByName(restName):
   print("restaurant",ans)
   return ans
 
+def getCustomerIdByName(name):
+  cursor = g.conn.execute("SELECT userid as id FROM users natural join customer WHERE username=%s", name)
+  ans = ""
+  for result in cursor:
+    ans = result['id']  
+  cursor.close()
+  print("customer", name,ans)
+  return ans
+
+@app.route('/restaurant/add_review', methods=['POST'])
+def add_review():
+  print("Inside add_review!!!!!!!!")
+  print('REVIEW : ', request.form['review'])
+  print("RESTAURANT : ", RESTAURANT)
+  print("si_customer_name : ", si_customer_name)
+
+  ### get userid from name
+  
+  ### add entry in dinesat table
+  g.conn.execute('INSERT INTO dinesat(userid,restaurantid) VALUES (%s, %s)', getCustomerIdByName(si_customer_name), getRestaurantIdByName(RESTAURANT))
+  ### insert review to review table
+  g.conn.execute('INSERT INTO review(userid,restaurantid,reviewtext) VALUES (%s, %s, %s)', getCustomerIdByName(si_customer_name), getRestaurantIdByName(RESTAURANT), request.form['review'])
+
+  return restaurant()
 
 @app.route('/owner/update', methods=['POST'])
 def owner_update():
@@ -197,7 +221,7 @@ def owner_update():
   print(restId, foodId, price)
   QUERY = """
   UPDATE menuitem
-  SET price = 9
+  SET price=priceAnchor
   WHERE foodid=foodIdAnchor and restaurantId=restaurantIdAnchor;
   """
   QUERY = QUERY.replace('foodIdAnchor', str(foodId)).replace('restaurantIdAnchor',str(restId)).replace('priceAnchor', str(price)).replace('\n','')
@@ -421,12 +445,15 @@ def food():
   return render_template("food.html", **context)
 
 
+RESTAURANT = ""
 @app.route('/restaurant', methods=['POST'])
 def restaurant():
-  RESTAURANT = request.form['rname']
+  global RESTAURANT
+  if 'submit_restaurant_button' in request.form:    
+    RESTAURANT = request.form['submit_restaurant_button']
   ## TODO: Add new block of code here with appropriate lists etc
-  print("HELLO")
-  print("RESTAURANT : ", RESTAURANT)
+  # print("HELLO")
+  # print("RESTAURANT : ", RESTAURANT)
 
   cursor = g.conn.execute("""SELECT food.foodname as fname, food.description as fdesc, menuitem.price as price
                             FROM restaurant
@@ -438,15 +465,16 @@ def restaurant():
     restaurant_items.append([result['fname'], result['fdesc'],result['price']])  # can also be accessed using result[0]
   cursor.close()
 
-
-  cursor = g.conn.execute("""SELECT *
+  cursor = g.conn.execute("""SELECT reviewtext
                             FROM review
-                            natural join restaurant
+                            join restaurant on review.restaurantid = restaurant.restaurantid
                             WHERE name = \'"""+RESTAURANT+"""\';""")
   restaurant_reviews = []
   for result in cursor:
-    restaurant_reviews.append([result['fname'], result['fdesc'],result['price']])  # can also be accessed using result[0]
+    restaurant_reviews.append(result['reviewtext'])  # can also be accessed using result[0]
   cursor.close()
+  print("HELLO")
+  print(restaurant_reviews)
 
   context = dict(restaurant_items_data = restaurant_items, restaurant_reviews_data = restaurant_reviews)
   return render_template("restaurant.html", **context)
