@@ -197,6 +197,15 @@ def getCustomerIdByName(name):
   print("customer", name,ans)
   return ans
 
+def getUserIdByName(name):
+  cursor = g.conn.execute("SELECT userid as id FROM users WHERE username=%s", name)
+  ans = ""
+  for result in cursor:
+    ans = result['id']  
+  cursor.close()
+  print("customer", name,ans)
+  return ans
+
 @app.route('/restaurant/add_review', methods=['POST'])
 def add_review():
   print("Inside add_review!!!!!!!!")
@@ -212,6 +221,22 @@ def add_review():
   g.conn.execute('INSERT INTO review(userid,restaurantid,reviewtext) VALUES (%s, %s, %s)', getCustomerIdByName(si_customer_name), getRestaurantIdByName(RESTAURANT), request.form['review'])
 
   return restaurant()
+
+@app.route('/restaurant/add_reservation', methods=['POST'])
+def create_reservation():
+  print("Inside create_reservation!!!!!!!!")
+  # print('REVIEW : ', request.form['review'])
+  print("RESTAURANT : ", RESTAURANT)
+  print("si_customer_name : ", si_customer_name)
+  print("DATE : ", request.form['reservation_date'])
+  print("TIME : ", request.form['reservation_time'])
+  ### get userid from name
+  
+  ### add entry in dinesat table
+  ### insert review to review table
+
+  return restaurant()
+
 
 @app.route('/owner/update', methods=['POST'])
 def owner_update():
@@ -417,8 +442,6 @@ def getFoodByTag(tag):
     return getPescetarianFood()
 
 
-
-
 def buidSearchQuery(cusine, restaurant, foodName, tag):
   queryList = []
   if cusine:
@@ -478,12 +501,12 @@ def restaurant():
 
   context = dict(restaurant_items_data = restaurant_items, restaurant_reviews_data = restaurant_reviews)
   return render_template("restaurant.html", **context)
+
 si_customer_name = ""
 su_customer_name = ""
 su_billing_info = ""
 su_customer_address = ""
 su_customer_ph = ""
-
 @app.route('/customer', methods=['POST'])
 def customer():
   
@@ -496,10 +519,11 @@ def customer():
   if 'si_customer_name' in request.form:
     print("Trying to Sign in")
     si_customer_name = request.form['si_customer_name']
-    ### TODO: Check if this customer doesn't exist
-    ### TODO: Create an alert saying invalid customer name
-    ### TODO: Redirect back to login page
 
+    if not getCustomerIdByName(si_customer_name):
+      print("There is no such user")
+      return render_template("login.html")
+    
 
   if 'su_customer_name' in request.form:
     print("Trying to Sign up")
@@ -508,7 +532,8 @@ def customer():
     su_customer_address = request.form['su_customer_address']
     su_customer_ph = request.form['su_customer_ph']
 
-    ### TODO: Add this customer to customer table
+    g.conn.execute('INSERT INTO users(username,address, phonenumber) VALUES (%s, %s, %s)', su_customer_name, su_customer_address, su_customer_ph)
+    g.conn.execute('INSERT INTO customer(userid, billinginfo) VALUES (%s,%s)', getUserIdByName(su_customer_name), su_billing_info)
 
     ### render the login page again so customer can login manually
     return render_template("login.html")
@@ -532,13 +557,8 @@ def customer():
     restaurantnames.append(result['name'])  # can also be accessed using result[0]
   cursor.close()
 
-
   context = dict(tag_data = tagnames, cuisine_data = cuisinenames, restaurant_data = restaurantnames, si_customer_name = si_customer_name)
 
-  #
-  # render_template looks in the templates/ folder for files.
-  # for example, the below file reads template/index.html
-  #
   return render_template("customer.html", **context)
 
 
