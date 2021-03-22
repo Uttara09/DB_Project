@@ -261,21 +261,30 @@ def owner_update():
   QUERY = QUERY.replace('foodIdAnchor', str(foodId)).replace('restaurantIdAnchor',str(restId)).replace('priceAnchor', str(price)).replace('\n','')
   g.conn.execute(QUERY)
   print("Inside owner update")
-
   return owner()
 
 @app.route('/owner/delete', methods=['POST'])
 def owner_delete():
+  restId = getRestaurantIdByName(request.form['rname'])
+  foodId = getFoodIdByName(request.form['fname'])
+  price = request.form['fprice']
+  print(restId, foodId, price)
+  QUERY = "DELETE FROM menuitem WHERE foodid=foodIdAnchor and restaurantId=restaurantIdAnchor"
+  QUERY = QUERY.replace('foodIdAnchor', str(foodId)).replace('restaurantIdAnchor',str(restId)).replace('\n','')
+  g.conn.execute(QUERY)
   print("Inside owner delete")
-  fname = request.form['fname']
-  rname = request.form['rname']
-  fprice = request.form['fprice']
-  print('fname : ', fname)
-
   return owner()
 
 @app.route('/owner/add', methods=['POST'])
 def owner_add():
+  print("Inside owner add")
+  restId = getRestaurantIdByName(request.form['rname'])
+  foodId = getFoodIdByName(request.form['fname'])
+  price = request.form['fprice']
+  print(restId, foodId, price)
+  QUERY = "INSERT INTO menuitem(foodid, restaurantId, price) VALUES (foodIdAnchor, restaurantIdAnchor, priceAnchor)"
+  QUERY = QUERY.replace('foodIdAnchor', str(foodId)).replace('restaurantIdAnchor',str(restId)).replace('priceAnchor', str(price)).replace('\n','')
+  g.conn.execute(QUERY)
   print("Inside owner add")
   return owner()
 
