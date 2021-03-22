@@ -322,7 +322,20 @@ def order():
   for result in cursor:
     orderitems.append([result['foodname'],str(result['price']),result['restaurantname'],str(result['quantity'])])  
   cursor.close()
-  context = dict(order_data = orderitems)
+  
+
+  cursor = g.conn.execute("""SELECT price*quantity as amount
+                    FROM orderitem
+                    natural join orders
+                    natural join menuitem
+                    natural join food
+                    join restaurant on restaurant.restaurantid = menuitem.restaurantid
+                    WHERE orders.userid = \'"""+custId+"""\';""")
+
+  total_bill = sum([result['amount'] for result in cursor])
+  cursor.close()
+
+  context = dict(order_data = orderitems, total_bill = total_bill)
   return render_template("order.html", **context)
 
 # Example of adding new data to the database
