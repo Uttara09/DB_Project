@@ -281,11 +281,14 @@ def owner_add():
 @app.route('/owner', methods=['POST'])
 def owner():
   global si_owner_name
+  login_message = ""
   if 'si_owner_name' in request.form:
     si_owner_name = request.form['si_owner_name']
     if not getOwnerIdByName(si_owner_name):
       print("There is no such user")
-      return render_template("login.html")
+      login_message = "Invalid user, please login with correct username"
+      context = dict(login_message = login_message)
+      return render_template("login.html", **context)
 
   # get all food at this restaurant
   cursor = g.conn.execute("""SELECT restaurant.name as rname, food.foodname as fname, menuitem.price as price
@@ -299,7 +302,7 @@ def owner():
   for result in cursor:
     food.append([result['fname'],result['price'],result['rname']])  
   cursor.close()
-  context = dict(food_data = food)
+  context = dict(food_data = food, login_message = login_message)
   return render_template("owner.html", **context)
 
 def deleteOrdersByUserId(userId):
@@ -310,9 +313,7 @@ def deleteOrdersByUserId(userId):
 
 @app.route('/order', methods=['POST'])
 def order():
-  # print(request.form)
-  # for x in request.form:
-  #   print(x)
+  
   custId = str(getCustomerIdByName(si_customer_name))
   cursor = g.conn.execute("""SELECT foodname, price, name as restaurantname, quantity
                     FROM orderitem
@@ -365,6 +366,7 @@ def createOrderItem(foodId, orderId, restaurantId, qty):
 @app.route('/add', methods=['POST'])
 def add():
   global customer_preferences
+  global restaurant_preferences
   user_id = getCustomerIdByName(si_customer_name)
   orderId = getOrdersByUserId(user_id)
   if not orderId:
@@ -379,6 +381,13 @@ def add():
   print(split_values)
   foodId = getFoodIdByName(split_values[0])
   restaurantId = getRestaurantIdByName(split_values[1])
+  if not restaurantId:
+    restaurantId = getRestaurantIdByName(RESTAURANT)
+    createOrderItem(foodId, orderId, restaurantId, qty)
+    context = restaurant_preferences 
+    return render_template("restaurant.html", **context)
+
+
   createOrderItem(foodId, orderId, restaurantId, qty)
   return render_template("food.html", **customer_preferences)
 
@@ -548,9 +557,11 @@ def food():
 
 
 RESTAURANT = ""
+restaurant_preferences = None
 @app.route('/restaurant', methods=['POST'])
 def restaurant():
   global RESTAURANT
+  global restaurant_preferences
   if 'submit_restaurant_button' in request.form:    
     RESTAURANT = request.form['submit_restaurant_button']
   ## TODO: Add new block of code here with appropriate lists etc
@@ -579,6 +590,7 @@ def restaurant():
   print(restaurant_reviews)
 
   context = dict(restaurant_items_data = restaurant_items, restaurant_reviews_data = restaurant_reviews)
+  restaurant_preferences = context
   return render_template("restaurant.html", **context)
 
 si_customer_name = ""
@@ -588,7 +600,7 @@ su_customer_address = ""
 su_customer_ph = ""
 @app.route('/customer', methods=['POST'])
 def customer():
-  
+  login_message = ""
   global si_customer_name
   global su_customer_name
   global su_billing_info
@@ -601,7 +613,9 @@ def customer():
 
     if not getCustomerIdByName(si_customer_name):
       print("There is no such user")
-      return render_template("login.html")
+      login_message = "Invalid user, please login with correct username"
+      context = dict(login_message = login_message)
+      return render_template("login.html", **context)
     
 
   if 'su_customer_name' in request.form:
@@ -636,7 +650,7 @@ def customer():
     restaurantnames.append(result['name'])  # can also be accessed using result[0]
   cursor.close()
 
-  context = dict(tag_data = tagnames, cuisine_data = cuisinenames, restaurant_data = restaurantnames, si_customer_name = si_customer_name)
+  context = dict(tag_data = tagnames, cuisine_data = cuisinenames, restaurant_data = restaurantnames, si_customer_name = si_customer_name, login_message = login_message)
 
   return render_template("customer.html", **context)
 
