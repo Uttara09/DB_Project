@@ -160,6 +160,7 @@ def teardown_request(exception):
 # Notice that the function name is another() rather than index()
 # The functions for each app.route need to have different names
 #
+customer_preferences = None
 @app.route('/another')
 def another():
   return render_template("another.html")
@@ -224,18 +225,17 @@ def add_review():
 
 @app.route('/restaurant/add_reservation', methods=['POST'])
 def create_reservation():
-  print("Inside create_reservation!!!!!!!!")
-  # print('REVIEW : ', request.form['review'])
-  print("RESTAURANT : ", RESTAURANT)
-  print("si_customer_name : ", si_customer_name)
-  print("DATE : ", request.form['reservation_date'])
-  print("TIME : ", request.form['reservation_time'])
-  ### get userid from name
+  DATE = request.form['reservation_date']
+  TIME = request.form['reservation_time']
+  date_time = request.form['reservation_date'] + request.form['reservation_time']
+  custId = getCustomerIdByName(si_customer_name)
+  restId = getRestaurantIdByName(RESTAURANT)
+  guests = request.form['guests']
+  g.conn.execute('INSERT INTO reservation(userid, restaurantid, reservationtime, guests) VALUES (%s, %s, %s, %s)', custId, restId, date_time, guests)
   
-  ### add entry in dinesat table
-  ### insert review to review table
-
-  return restaurant()
+  reservation_details = [si_customer_name, RESTAURANT, DATE, TIME]
+  context = dict(reservation_data = reservation_details)
+  return render_template("reservation.html", **context)
 
 
 @app.route('/owner/update', methods=['POST'])
@@ -302,9 +302,24 @@ def order():
 # Example of adding new data to the database
 @app.route('/add', methods=['POST'])
 def add():
-  name = request.form['name']
-  g.conn.execute('INSERT INTO test(name) VALUES (%s)', name)
-  return redirect('/')
+  global customer_preferences
+  # food_name = request.form['food_name']
+  # food_price = request.form['food_price']
+  qty = request.form['quantity']
+  print('qty : ', qty)
+  values = request.form['add_action_button']
+  print('add_action_button = ', request.form['add_action_button'])
+  split_values = values.split("$")
+  print(split_values)
+
+  # print('food_name : ', food_name)
+  # print('food_price : ', food_price)
+  food_name, food_price = None, None
+
+  # return redirect('/food')
+  # return ('',200)
+  return render_template("food.html", **customer_preferences)
+
 
 def getFoodByCusine(cusine):
   CUSINE_SEARCH_QUERY = """SELECT food.foodname as fname, food.description as fdesc, restaurant.name as rname, menuitem.price as price
@@ -456,6 +471,7 @@ def buidSearchQuery(cusine, restaurant, foodName, tag):
 
 @app.route('/food', methods=['POST'])
 def food():
+  global customer_preferences
   print(buidSearchQuery(request.form['cuisine'], request.form['rname'], request.form['dname'], request.form['dietTag']).replace('\n',''))
   cursor = g.conn.execute(buidSearchQuery(request.form['cuisine'], request.form['rname'], request.form['dname'], request.form['dietTag']).replace('\n','')) ## TODO: Add new query here!
   # cursor = g.conn.execute()
@@ -465,6 +481,7 @@ def food():
   cursor.close()
 
   context = dict(food_data = foods)
+  customer_preferences = context
   return render_template("food.html", **context)
 
 

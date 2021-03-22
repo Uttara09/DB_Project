@@ -35,17 +35,15 @@
     <div>
       {% for n in food_data %}
         <div>
-          <span class="name">{{n[0]}}</span>
+          <span class="name" name="food_name" value="{{n[0]}}">{{n[0]}}</span>
           <span class="desc">{{n[1]}}</span>
           <span class="price">{{n[2]}}</span>
-          <div>
-           <form method="post" action="/restaurant">
-            <input type="number" id="quantity" name="quantity" min="0" max="10">
-            <input type="submit" name="submit_restaurant_button" value="{{n[3]}}">
-          </form> 
-          </div>
+          <input type="hidden" name="food_name" value ="{{n[0]}}">
+          <input type="hidden" name="food_price" value ="{{n[2]}}">
+          <input type="number" id="quantity" name="quantity" min="0" max="10">
+          <button type="submit" name="submit_restaurant_button" formaction="/restaurant" value="{{n[3]}}">{{n[3]}}</button> 
           
-          <button type="submit">ADD</button>
+          <button type="submit" name="add_action_button" formaction="/add" value="{{n[3]}}${{n[0]}}${{n[2]}}">ADD</button>
         </div>
       {% endfor %}
     </div>
