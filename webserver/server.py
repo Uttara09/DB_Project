@@ -310,9 +310,6 @@ def deleteOrdersByUserId(userId):
 
 @app.route('/order', methods=['POST'])
 def order():
-  # print(request.form)
-  # for x in request.form:
-  #   print(x)
   custId = str(getCustomerIdByName(si_customer_name))
   cursor = g.conn.execute("""SELECT foodname, price, name as restaurantname, quantity
                     FROM orderitem
@@ -530,6 +527,20 @@ def buidSearchQuery(cusine, restaurant, foodName, tag):
   if tag:
     queryList.append(getFoodByTag(tag))
   return " INTERSECT ".join(queryList)
+
+def getCaloriesByFood(foodName):
+  QUERY = """
+  SELECT food.foodid, food.foodname, X.quantity*X.calories as total_cal
+  FROM
+  (SELECT *
+  FROM foodingredients
+  join ingredient
+  on ingredient.ingredientid = foodingredients.ingredientid) AS X
+  JOIN food
+  ON food.foodname = foodNameAnchor
+  """
+
+
 
 @app.route('/food', methods=['POST'])
 def food():
