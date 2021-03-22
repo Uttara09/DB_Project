@@ -26,7 +26,7 @@
   <h1>Restaurant Name</h1>
   <!-- <div>{{cuisine_data}}</div> -->
   <h2>Menu</h2>
-  <div>
+  <!-- <div>
     {% for n in restaurant_items_data %}
       <div>
         <span class="name">{{n[0]}}</span>
@@ -35,6 +35,25 @@
       </div>
     
     {% endfor %}
+  </div> -->
+
+  <div>
+    <form method="POST" action="/order" >
+    <div>
+      {% for n in restaurant_items_data %}
+        <div>
+          <span class="name" name="food_name" value="{{n[0]}}">{{n[0]}}</span>
+          <span class="desc">{{n[1]}}</span>
+          <span class="price">{{n[2]}}</span>
+          <input type="hidden" name="food_name" value ="{{n[0]}}">
+          <input type="hidden" name="food_price" value ="{{n[2]}}">
+          <input type="number" id="quantity" name="quantity" min="0" max="10">   
+          <button type="submit" name="add_action_button" formaction="/add" value="{{n[0]}}${{n[2]}}">ADD</button>
+        </div>
+      {% endfor %}
+    </div>
+    <button name="checkout" type="submit" value="checkout">Checkout</button>
+  </form> 
   </div>
 
   <h2>Reviews</h2>

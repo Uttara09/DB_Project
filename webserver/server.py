@@ -310,9 +310,7 @@ def deleteOrdersByUserId(userId):
 
 @app.route('/order', methods=['POST'])
 def order():
-  # print(request.form)
-  # for x in request.form:
-  #   print(x)
+  
   custId = str(getCustomerIdByName(si_customer_name))
   cursor = g.conn.execute("""SELECT foodname, price, name as restaurantname, quantity
                     FROM orderitem
@@ -365,6 +363,7 @@ def createOrderItem(foodId, orderId, restaurantId, qty):
 @app.route('/add', methods=['POST'])
 def add():
   global customer_preferences
+  global restaurant_preferences
   user_id = getCustomerIdByName(si_customer_name)
   orderId = getOrdersByUserId(user_id)
   if not orderId:
@@ -379,6 +378,13 @@ def add():
   print(split_values)
   foodId = getFoodIdByName(split_values[0])
   restaurantId = getRestaurantIdByName(split_values[1])
+  if not restaurantId:
+    restaurantId = getRestaurantIdByName(RESTAURANT)
+    createOrderItem(foodId, orderId, restaurantId, qty)
+    context = restaurant_preferences 
+    return render_template("restaurant.html", **context)
+
+
   createOrderItem(foodId, orderId, restaurantId, qty)
   return render_template("food.html", **customer_preferences)
 
@@ -548,9 +554,11 @@ def food():
 
 
 RESTAURANT = ""
+restaurant_preferences = None
 @app.route('/restaurant', methods=['POST'])
 def restaurant():
   global RESTAURANT
+  global restaurant_preferences
   if 'submit_restaurant_button' in request.form:    
     RESTAURANT = request.form['submit_restaurant_button']
   ## TODO: Add new block of code here with appropriate lists etc
@@ -579,6 +587,7 @@ def restaurant():
   print(restaurant_reviews)
 
   context = dict(restaurant_items_data = restaurant_items, restaurant_reviews_data = restaurant_reviews)
+  restaurant_preferences = context
   return render_template("restaurant.html", **context)
 
 si_customer_name = ""
