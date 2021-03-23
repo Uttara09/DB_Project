@@ -19,6 +19,12 @@
       font-family: arial;
       color: maroon
     }
+    .calories{
+      font-size: 10pt;
+      font-family: arial;
+      color: black;
+      font-style: italic
+    }    
     .rname{
       font-size: 15pt;
       font-family: arial;
@@ -38,6 +44,7 @@
           <span class="name" name="food_name" value="{{n[0]}}">{{n[0]}}</span>
           <span class="desc">{{n[1]}}</span>
           <span class="price">{{n[2]}}</span>
+          <span class="calories">{{n[4]}} cal</span>
           <input type="hidden" name="food_name" value ="{{n[0]}}">
           <input type="hidden" name="food_price" value ="{{n[2]}}">
           <input type="number" id="quantity" name="quantity" min="0" max="10">

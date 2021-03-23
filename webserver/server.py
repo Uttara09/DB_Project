@@ -51,6 +51,27 @@ def teardown_request(exception):
 def another():
   return render_template("another.html")
 
+def getCaloriesByFoodName(foodName):
+  return getCaloriesByFoodId(getFoodIdByName(foodName))
+
+def getCaloriesByFoodId(foodId):
+  QUERY = """
+  SELECT SUM(ingredient.calories * foodingredients.quantity) as calories
+  FROM foodingredients
+  natural join ingredient
+  where foodingredients.foodid = foodIdAnchor
+  group by foodingredients.foodid;
+  """
+  QUERY = QUERY.replace('foodIdAnchor', str(foodId)).replace('\n','')
+  cursor = g.conn.execute(QUERY)
+  ans = ""
+  for result in cursor:
+    ans = result['calories']  
+  cursor.close()
+  print("calories",ans)
+  return ans  
+
+
 def getFoodIdByName(foodName):
   QUERY = "SELECT foodid as id from food where foodname = 'foodAnchor'"
   QUERY = QUERY.replace('foodAnchor', foodName)
@@ -450,7 +471,7 @@ def food():
     # cursor = g.conn.execute()
     foods = []
     for result in cursor:
-      foods.append([result['fname'], result['fdesc'],result['price'],result['rname']])  
+      foods.append([result['fname'], result['fdesc'],result['price'],result['rname'],getCaloriesByFoodName(result['fname'])])
     cursor.close()
 
     context = dict(food_data = foods)
