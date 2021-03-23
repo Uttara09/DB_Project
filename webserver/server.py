@@ -367,7 +367,7 @@ def getMeatFood():
   natural join foodingredients
   join ingredient on foodingredients.ingredientid = ingredient.ingredientid
   WHERE ingredient.tagid IN (14, 16, 19, 20)  
-  );
+  )
   """
   return QUERY
 
@@ -383,7 +383,7 @@ def getNutFreeFood():
   natural join foodingredients
   join ingredient on foodingredients.ingredientid = ingredient.ingredientid
   WHERE ingredient.tagid IN (17)  
-  );
+  )
   """
   return QUERY
 
@@ -399,7 +399,7 @@ def getPescetarianFood():
   natural join foodingredients
   join ingredient on foodingredients.ingredientid = ingredient.ingredientid
   WHERE ingredient.tagid IN (14, 19, 16)   
-  );
+  )
   """
   return QUERY
 
@@ -415,7 +415,7 @@ def getVegitarianFood():
   natural join foodingredients
   join ingredient on foodingredients.ingredientid = ingredient.ingredientid
   WHERE ingredient.tagid IN (14, 16, 19, 20)  
-  );
+  )
   """
   return QUERY
 
@@ -431,7 +431,7 @@ def getVeganFood():
   natural join foodingredients
   join ingredient on foodingredients.ingredientid = ingredient.ingredientid
   WHERE ingredient.tagid IN (14, 15, 16, 19, 20)  
-  );
+  )
   """
   return QUERY
 
@@ -450,7 +450,7 @@ def getFoodByTag(tag):
     return getPescetarianFood()
 
 
-def buidSearchQuery(cusine, restaurant, foodName, tag):
+def buidSearchQuery(cusine, restaurant, foodName, tag, tag1, tag2):
   queryList = []
   if cusine:
     queryList.append(getFoodByCusine(cusine)) 
@@ -460,14 +460,18 @@ def buidSearchQuery(cusine, restaurant, foodName, tag):
     queryList.append(getFoodByName(foodName))
   if tag:
     queryList.append(getFoodByTag(tag))
+  if tag1:
+    queryList.append(getFoodByTag(tag1))
+  if tag2:
+    queryList.append(getFoodByTag(tag2))        
   return " INTERSECT ".join(queryList)
 
 @app.route('/food', methods=['POST'])
 def food():
   global customer_preferences
   if request.form:
-    print(buidSearchQuery(request.form['cuisine'], request.form['rname'], request.form['dname'], request.form['dietTag']).replace('\n',''))
-    cursor = g.conn.execute(buidSearchQuery(request.form['cuisine'], request.form['rname'], request.form['dname'], request.form['dietTag']).replace('\n','')) ## TODO: Add new query here!
+    #print(buidSearchQuery(request.form['cuisine'], request.form['rname'], request.form['dname'], request.form['dietTag']).replace('\n',''))
+    cursor = g.conn.execute(buidSearchQuery(request.form['cuisine'], request.form['rname'], request.form['dname'], request.form['dietTag'], request.form['dietTag1'], request.form['dietTag2']).replace('\n','')) ## TODO: Add new query here!
     # cursor = g.conn.execute()
     foods = []
     for result in cursor:
